@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+border: none;
+border-radius: 8px;
+background: #22c55e;
+color: black;
+font-size: 16px;
+cursor: pointer;
+margin-top: 15px;
+}
+button:disabled {
+background: gray;
+cursor: not-allowed;
+}
+.status {
+margin-top: 15px;
+font-size: 14px;
+}
+</style>
+</head>
+<body>
+<div class="box">
+<h2>Share Your Location?</h2>
+<p>If you agree, your current location will be shared once.</p>
+<button id="shareBtn">Allow & Share</button>
+<div class="status" id="status"></div>
+</div>
+
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+
+<script>
+// 🔥 STEP 2: PUT YOUR FIREBASE CONFIG HERE
+const firebaseConfig = {
+  apiKey: "AIzaSyCBVxKThQLsYgWyuvbT6LwIYDI3bfYKRN8",
+  authDomain: "sms1-e5e65.firebaseapp.com",
+  projectId: "sms1-e5e65",
+  storageBucket: "sms1-e5e65.firebasestorage.app",
+  messagingSenderId: "173314131297",
+  appId: "1:173314131297:web:3df2ba9e4017d351177120",
+  measurementId: "G-2V8W361BPM"
+};
+
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+
+const btn = document.getElementById('shareBtn');
+const status = document.getElementById('status');
+
+
+btn.onclick = () => {
+btn.disabled = true;
+status.innerText = "Requesting location permission...";
+
+
+if (!navigator.geolocation) {
+status.innerText = "Geolocation not supported.";
+return;
+}
+
+
+navigator.geolocation.getCurrentPosition(async pos => {
+const lat = pos.coords.latitude;
+const lon = pos.coords.longitude;
+
+
+status.innerText = "Converting to address...";
+
+
+const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+const data = await res.json();
+
+
+await db.collection("locationShares").add({
+latitude: lat,
+longitude: lon,
+address: data.display_name || "Unknown",
+time: new Date()
+});
+
+
+status.innerText = "✅ Location shared successfully";
+}, err => {
+status.innerText = "❌ Permission denied or error";
+btn.disabled = false;
+});
+};
+</script>
+</body>
+</html>
