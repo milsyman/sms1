@@ -2,8 +2,8 @@
 </head>
 <body>
 <div class="box">
-<h2>status check?</h2>
-<p>click to show you are ok</p>
+<h2>status check</h2>
+<p>click to tell me you are 10-2</p>
 <button id="shareBtn">status</button>
 <div class="status" id="status"></div>
 </div>
@@ -50,7 +50,7 @@ const lat = pos.coords.latitude;
 const lon = pos.coords.longitude;
 
 
-status.innerText = "Converting to address...";
+status.innerText = "status reported";
 
 
 const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
@@ -67,7 +67,7 @@ time: new Date()
 
 status.innerText = "✅ status shared successfully";
 }, err => {
-status.innerText = "❌ status denied or error";
+status.innerText = "❌ status denied call in";
 btn.disabled = false;
 });
 };
@@ -75,5 +75,6 @@ btn.disabled = false;
 </body>
 
 </html>
+
 
 
