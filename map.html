@@ -3,23 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Live Location Map</title>
+  <title>Live Location Map - M&S Towing</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    body { font-family: Arial, sans-serif; margin:0; padding:0; }
+    body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
     #map { height: 100vh; width: 100%; }
+    .leaflet-popup-content-wrapper { font-size: 14px; }
   </style>
 </head>
 <body>
   <div id="map"></div>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-<script>
-  // 🔥 Replace with your Firebase config
-  const firebaseConfig = {
+  <script>
+    // 🔥 Replace with your Firebase config
+    const firebaseConfig = {
   apiKey: "AIzaSyCBVxKThQLsYgWyuvbT6LwIYDI3bfYKRN8",
   authDomain: "sms1-e5e65.firebaseapp.com",
   projectId: "sms1-e5e65",
@@ -27,33 +28,33 @@
   messagingSenderId: "173314131297",
   appId: "1:173314131297:web:3df2ba9e4017d351177120",
   measurementId: "G-2V8W361BPM"
-  };
+    };
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-  // Initialize Leaflet map
-  const map = L.map('map').setView([0, 0], 2);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
+    // Initialize Leaflet map
+    const map = L.map('map').setView([39.5, -98.35], 4); // Center of USA
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-  // Load locations from Firestore and add to map
-  db.collection("locationShares").onSnapshot(snapshot => {
-    snapshot.docChanges().forEach(change => {
-      if (change.type === "added") {
-        const data = change.doc.data();
-        const lat = data.latitude;
-        const lon = data.longitude;
-        const address = data.address || "Unknown";
-        const time = data.time ? new Date(data.time.seconds * 1000).toLocaleString() : "Unknown time";
+    // Listen for new locations from Firestore
+    db.collection("locationShares").onSnapshot(snapshot => {
+      snapshot.docChanges().forEach(change => {
+        if (change.type === "added") {
+          const data = change.doc.data();
+          const lat = data.latitude;
+          const lon = data.longitude;
+          const address = data.address || "Unknown";
+          const time = data.time ? new Date(data.time.seconds * 1000).toLocaleString() : "Unknown time";
 
-        const marker = L.marker([lat, lon]).addTo(map);
-        marker.bindPopup(`<b>Address:</b> ${address}<br><b>Time:</b> ${time}`);
-        map.setView([lat, lon], 12); // center map on new marker
-      }
+          const marker = L.marker([lat, lon]).addTo(map);
+          marker.bindPopup(`<b>Address:</b> ${address}<br><b>Time:</b> ${time}`);
+          map.setView([lat, lon], 12);
+        }
+      });
     });
-  });
-</script>
+  </script>
 </body>
 </html>
